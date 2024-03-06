@@ -10,52 +10,57 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import java.io.File
 import java.io.Serializable
-
+val divider = File.separator
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 fun main() {
     val dossier = File("C:\\Users\\mathi\\Desktop\\TP1")
     val dossierpath ="C:\\Users\\mathi\\Desktop\\TP1"
-    val divider = File.separator
+
     val mapper = XmlMapper()
 
-   val famille1 = Famille()
-    val famille2 = Famille("Mathias", 25, true, listOf(Person("John", 25, false), Person("Jane", 25, false)))
 
-    val xml = """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE Movie SYSTEM "famille2.dtd">
-    
-    ${ mapper.writeValueAsString(famille2)}
-    
-    """.trimIndent()
-
-
-
-    val fichier = File(dossierpath + divider + "famille2.xml")
+    val famille2 = Famille("Mathias2", 25, true, mutableListOf(Person("John", 25, false), Person("Jane", 25, false)))
+    saveToXml("famille2", famille2, dossierpath)
+    //val fichier = File(dossierpath + divider + "famille2.xml")
     //val dxml = fichier.readText()
-   // val fmille = mapper.readValue(dxml, Famille::class.java)
-   // fmille.children.forEach { println(it.name) }
-    fichier.writeText(xml)
+    //val fmille = mapper.readValue(dxml, Famille::class.java)
+   //fmille.children.forEach { println(it.name) }
+
 
 
 }
 
-//@JsonIgnoreProperties(ignoreUnknown = true)
+@JacksonXmlRootElement(localName = "person")
 class Person (
-    var nameou: String = "John",
-    var ageou: Int = 25,
-    var isMarriedou: Boolean =false
-): Serializable
-@JacksonXmlRootElement(localName = "Family")
-class Famille(
-   @JacksonXmlProperty(localName = "nom-famille")
+    @JacksonXmlProperty(localName = "nom")
     var name: String = "John",
-    @JacksonXmlProperty(localName = "age-personne")
+    @JacksonXmlProperty(localName = "age")
     var age: Int = 25,
-   @JacksonXmlProperty(localName ="mariage-personne")
+    @JacksonXmlProperty(localName = "estmarrier")
+    var isMarried: Boolean =false
+): Serializable
+
+@JacksonXmlRootElement(localName = "famille")
+class Famille(
+@JacksonXmlProperty(localName = "nom")
+    var name: String = "John",
+
+@JacksonXmlProperty(localName = "age")
+    var age: Int = 25,
+@JacksonXmlProperty(localName = "isMarried")
     var isMarried: Boolean = false,
-   @JacksonXmlProperty(localName ="enfants")
-    var children: List<Person> = listOf(Person(), Person())): Serializable
+@JacksonXmlProperty(localName = "enfants")
+    var children: MutableList<Person> = mutableListOf(Person(), Person())
+): Serializable
+
+fun saveToXml(name: String, element : Any, path : String){
+
+    val fichier = File(path + divider+ "$name.xml")
+    val mapper = XmlMapper()
+   val xml = mapper.writeValueAsString(element)
+    fichier.writeText(xml)
+
+}
 
 
