@@ -18,6 +18,8 @@ val divider = File.separator
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 fun main() {
+    val missionpath = "C:\\Users\\mathi\\Desktop\\TP1\\Mission"
+    val measurepath = "C:\\Users\\mathi\\Desktop\\TP1\\Mesures"
     val dossier = File("C:\\Users\\mathi\\Desktop\\TP1")
     val dossierpath ="C:\\Users\\mathi\\Desktop\\TP1"
 
@@ -60,7 +62,7 @@ class Famille(
 
 @field:JacksonXmlElementWrapper(useWrapping = true, localName = "enfants")
 @field:JacksonXmlProperty(localName = "person")
-var children: MutableList<Person> = mutableListOf(Person(), Person())
+var children: MutableList<Person> = mutableListOf()
 ): Serializable
 
 fun saveToXml(name: String, element : Any, path : String){
@@ -75,5 +77,45 @@ fun saveToXml(name: String, element : Any, path : String){
     fichier.writeText(xml)
 
 }
+
+fun loadFiles(path: String) {
+    val dossier = File(path)
+   dossier.listFiles()?.forEach {
+    file ->
+        if (file.name.startsWith("export")) {
+            println("${file.name} commence par 'export'")
+
+
+        }
+       if(file.name.startsWith("import")) {
+           println("${file.name} commence par 'import'")
+       }
+
+    }
+}
+
+fun loadFiles2(path: String) {
+    val dossier = File(path)
+    dossier.listFiles()?.apply {
+        forEach { file->
+            if (file.name.startsWith("export")) {
+                println("${file.name} commence par 'export'")
+            }
+        }
+
+    }?.run {
+
+        forEach { file->
+            if (file.name.startsWith("import")) {
+                println("${file.name} commence par 'export'")
+            }
+        }
+    }
+
+}
+
+
+
+
 
 
