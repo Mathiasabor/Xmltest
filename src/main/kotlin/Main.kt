@@ -1,13 +1,17 @@
 package org.example
 
 import com.fasterxml.jackson.annotation.JsonAlias
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import kotlinx.serialization.Transient
 import java.io.File
 import java.io.Serializable
 val divider = File.separator
@@ -20,12 +24,13 @@ fun main() {
     val mapper = XmlMapper()
 
 
-    val famille2 = Famille("Mathias2", 25, true, mutableListOf(Person("John", 25, false), Person("Jane", 25, false)))
-    saveToXml("famille2", famille2, dossierpath)
-    //val fichier = File(dossierpath + divider + "famille2.xml")
-    //val dxml = fichier.readText()
-    //val fmille = mapper.readValue(dxml, Famille::class.java)
-   //fmille.children.forEach { println(it.name) }
+
+    //val famille2 = Famille("Mathias2", 25, true, mutableListOf(Person("John", 25, false), Person("Jane", 25, false)))
+   // saveToXml("famille4", famille2, dossierpath)
+    val fichier = File(dossierpath + divider + "famille4.xml")
+    val dxml = fichier.readText()
+    val fmille = mapper.readValue(dxml, Famille::class.java)
+   fmille.children.forEach { println(it.name) }
 
 
 
@@ -33,31 +38,39 @@ fun main() {
 
 @JacksonXmlRootElement(localName = "person")
 class Person (
-    @JacksonXmlProperty(localName = "nom")
+
+    @field:JacksonXmlProperty(localName = "nom")
     var name: String = "John",
-    @JacksonXmlProperty(localName = "age")
+    @field:JacksonXmlProperty(localName = "age")
     var age: Int = 25,
-    @JacksonXmlProperty(localName = "estmarrier")
+    @field:JacksonXmlProperty(localName = "estmarrier")
     var isMarried: Boolean =false
 ): Serializable
 
 @JacksonXmlRootElement(localName = "famille")
 class Famille(
-@JacksonXmlProperty(localName = "nom")
-    var name: String = "John",
+    @field:JsonIgnore
+@field:JacksonXmlProperty(localName = "nom")
+    var name: String ,
 
-@JacksonXmlProperty(localName = "age")
+@field:JacksonXmlProperty(localName = "age")
     var age: Int = 25,
-@JacksonXmlProperty(localName = "isMarried")
+@field:JacksonXmlProperty(localName = "isMarried")
     var isMarried: Boolean = false,
-@JacksonXmlProperty(localName = "enfants")
-    var children: MutableList<Person> = mutableListOf(Person(), Person())
+
+@field:JacksonXmlElementWrapper(useWrapping = true, localName = "enfants")
+@field:JacksonXmlProperty(localName = "person")
+var children: MutableList<Person> = mutableListOf(Person(), Person())
 ): Serializable
 
 fun saveToXml(name: String, element : Any, path : String){
 
     val fichier = File(path + divider+ "$name.xml")
-    val mapper = XmlMapper()
+    val mapper = XmlMapper().apply {
+        setDefaultUseWrapper(false)
+        enable(SerializationFeature.INDENT_OUTPUT)
+        enable(SerializationFeature.WRAP_ROOT_VALUE)
+    }
    val xml = mapper.writeValueAsString(element)
     fichier.writeText(xml)
 
